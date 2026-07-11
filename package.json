@@ -30,12 +30,12 @@
   ],
   "repository": {
     "type": "git",
-    "url": ""
+    "url": "git+https://github.com/codetibo/node-pdf-to-md.git"
   },
   "bugs": {
-    "url": ""
+    "url": "https://github.com/codetibo/node-pdf-to-md/issues"
   },
-  "homepage": "",
+  "homepage": "https://github.com/codetibo/node-pdf-to-md#readme",
   "sideEffects": false,
   "dependencies": {
     "mdast-util-gfm": "^3.1.0",

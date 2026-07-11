@@ -39,10 +39,11 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
       - name: Bump patch version
+        run: npm version patch -m "chore(release): %s [skip ci]"
+
+      - name: Set version tag
         id: bump
-        run: |
-          npm version patch -m "chore(release): %s [skip ci]"
-          echo "tag=v$(node -p \"require('./package.json').version\")" >> $GITHUB_OUTPUT
+        run: node -e "console.log('tag=v' + require('./package.json').version)" >> $GITHUB_OUTPUT
 
       # Uses OIDC (trusted publishing) by default when configured on npmjs.com.
       # npm CLI 11.5.1+ automatically detects OIDC in GitHub Actions.

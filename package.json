@@ -1,8 +1,8 @@
 {
-  "name": "node-pdf-to-md",
-  "version": "0.1.1",
+  "name": "pdf-to-md-ts",
+  "version": "0.1.0",
   "description": "Convert PDF documents to Markdown — browser & Node.js compatible",
-  "author": "",
+  "author": "codetibo <codetibo@proton.me>",
   "license": "MIT",
   "type": "module",
   "main": "./dist/index.js",
@@ -30,12 +30,12 @@
   ],
   "repository": {
     "type": "git",
-    "url": ""
+    "url": "git+https://github.com/codetibo/pdf-to-md-ts.git"
   },
   "bugs": {
-    "url": ""
+    "url": "https://github.com/codetibo/pdf-to-md-ts/issues"
   },
-  "homepage": "",
+  "homepage": "https://github.com/codetibo/pdf-to-md-ts#readme",
   "sideEffects": false,
   "dependencies": {
     "mdast-util-gfm": "^3.1.0",
@@ -46,5 +46,10 @@
     "@types/mdast": "^4.0.4",
     "@types/node": "^22.13.10",
     "typescript": "^5.8.2"
+  },
+  "scripts": {
+    "build": "tsc",
+    "build:package": "tsc",
+    "prepublishOnly": "npm run build"
   }
 }

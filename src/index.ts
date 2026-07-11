@@ -1,10 +1,10 @@
 /**
- * node-pdf-to-md - Convert PDF documents to Markdown
+ * pdf-to-md-ts - Convert PDF documents to Markdown
  *
  * Works in both browser and Node.js environments.
  * Uses pdf.js for PDF parsing and mdast for Markdown serialization.
  *
- * @module node-pdf-to-md
+ * @module pdf-to-md-ts
  */
 
 export { pdfToMarkdown } from './converter.js';

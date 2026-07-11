@@ -1,0 +1,62 @@
+name: Publish to npm
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  id-token: write  # Required for npm trusted publishing (OIDC)
+  contents: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # Required so we can push the version bump commit and tag back.
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          registry-url: https://registry.npmjs.org
+
+      # Trusted publishing (OIDC) requires npm CLI 11.5.1+ and Node 22.14.0+
+      - name: Upgrade npm for OIDC support
+        run: npm install -g npm@latest
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build package
+        run: npm run build:package
+
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Bump patch version
+        id: bump
+        run: |
+          npm version patch -m "chore(release): %s [skip ci]"
+          echo "tag=v$(node -p \"require('./package.json').version\")" >> $GITHUB_OUTPUT
+
+      # Uses OIDC (trusted publishing) by default when configured on npmjs.com.
+      # npm CLI 11.5.1+ automatically detects OIDC in GitHub Actions.
+      # Falls back to NODE_AUTH_TOKEN if OIDC is not yet configured.
+      - name: Publish to npm
+        run: npm publish --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Push version bump commit and tag
+        run: git push origin main --tags
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.bump.outputs.tag }}
+          generate_release_notes: true

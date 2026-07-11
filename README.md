@@ -1,4 +1,4 @@
-# node-pdf-to-md
+# pdf-to-md-ts
 
 > Convert PDF documents to clean Markdown — works in **browser** and **Node.js**.
 
@@ -9,7 +9,7 @@ A fast, dependency-light PDF-to-Markdown converter powered by Mozilla's pdf.js. 
 ## Installation
 
 ```bash
-npm install node-pdf-to-md
+npm install pdf-to-md-ts
 ```
 
 ## Quick Start
@@ -17,7 +17,7 @@ npm install node-pdf-to-md
 ### Browser
 
 ```ts
-import { pdfToMarkdown } from 'node-pdf-to-md';
+import { pdfToMarkdown } from 'pdf-to-md-ts';
 
 // From a file input
 const fileInput = document.querySelector('input[type="file"]');
@@ -31,7 +31,7 @@ console.log(markdown);
 ### Node.js
 
 ```ts
-import { pdfToMarkdown } from 'node-pdf-to-md';
+import { pdfToMarkdown } from 'pdf-to-md-ts';
 import { readFile } from 'node:fs/promises';
 
 const data = await readFile('document.pdf');
@@ -64,7 +64,7 @@ Throws on invalid PDF data. Throws `AbortError` (or `Error` in older Node.js) wh
 ### Types
 
 ```ts
-import type { PdfToMarkdownOptions, TxtItem, Row, FontStyle } from 'node-pdf-to-md';
+import type { PdfToMarkdownOptions, TxtItem, Row, FontStyle } from 'pdf-to-md-ts';
 ```
 
 ---

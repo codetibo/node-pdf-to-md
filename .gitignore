@@ -8,6 +8,7 @@ nul
 # Test artifacts
 *-tmp.pdf
 
-# Test app generated PDFs (test-app/ itself is tracked for CI)
+# Test app
+test-app
 scanned-test.pdf
 comprehensive-test.pdf

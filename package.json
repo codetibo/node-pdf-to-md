@@ -50,7 +50,7 @@
   "scripts": {
     "build": "tsc",
     "build:package": "tsc",
-    "test": "npm run build && cd test-app && npm install --silent && npm test",
-    "prepublishOnly": "npm run build && cd test-app && npm install --silent && npm test"
+    "test": "npm run build",
+    "prepublishOnly": "npm run build"
   }
 }

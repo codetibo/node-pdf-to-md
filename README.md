@@ -52,6 +52,8 @@ Converts PDF data to a Markdown string.
 |-------|------|-------------|
 | `data` | `ArrayBuffer \| Uint8Array` | The PDF file contents |
 | `options.signal` | `AbortSignal` | Optional `AbortSignal` to cancel conversion |
+| `options.pages` | `number[]` | Optional 1-indexed page numbers to include, e.g. `[1, 3, 5, 6, 7]` |
+| `options.headingSizes` | `HeadingSizes` | Optional custom font-size thresholds for heading detection, e.g. `{ h1: 18, h2: 14 }` |
 
 #### Returns
 

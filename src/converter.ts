@@ -19,7 +19,7 @@ import type {
 } from 'mdast';
 import { toMarkdown } from 'mdast-util-to-markdown';
 import { gfmToMarkdown } from 'mdast-util-gfm';
-import type { TxtItem, Row, FontStyle, PdfToMarkdownOptions } from './types.js';
+import type { TxtItem, Row, FontStyle, HeadingSizes, PdfToMarkdownOptions } from './types.js';
 
 // ── Lazy pdfjs import (handles Node.js vs browser builds) ─────────────
 
@@ -143,18 +143,35 @@ function buildFontStyleMap(items: TxtItem[]): Record<string, FontStyle> {
 
 // ── Heading detection ──────────────────────────────────────────────────
 
-function headingDepth(row: Row, fontStyleMap?: Record<string, FontStyle>): number | null {
+/** Default font-size thresholds used when the user doesn't provide custom sizes */
+const DEFAULT_HEADING_SIZES: Required<HeadingSizes> = {
+  h1: 20,
+  h2: 16,
+  h3: 14,
+  h4: 12.5,
+  h5: 11.5,
+  h6: 10,
+};
+
+function headingDepth(
+  row: Row,
+  fontStyleMap?: Record<string, FontStyle>,
+  sizes?: HeadingSizes,
+): number | null {
   const maxSz = Math.max(...row.map(t => t.fontSize));
   const text = rowText(row);
   if (ALL_CAPS_RE.test(text) && text.length > 3) return null;
   if (text.endsWith(':')) return null;
   if (text.length > 80) return null;
-  if (maxSz >= 20) return 1;
-  if (maxSz >= 16) return 2;
-  if (maxSz >= 14) return 3;
-  if (maxSz >= 12.5) return 4;
-  if (maxSz >= 11.5) return 5;
-  if (maxSz >= 10 && row.some(t => fontStyleMap?.[t.fontName]?.strong)) return 6;
+
+  const s: Required<HeadingSizes> = { ...DEFAULT_HEADING_SIZES, ...sizes };
+
+  if (maxSz >= s.h1) return 1;
+  if (maxSz >= s.h2) return 2;
+  if (maxSz >= s.h3) return 3;
+  if (maxSz >= s.h4) return 4;
+  if (maxSz >= s.h5) return 5;
+  if (maxSz >= s.h6 && row.some(t => fontStyleMap?.[t.fontName]?.strong)) return 6;
   return null;
 }
 
@@ -547,8 +564,16 @@ export async function pdfToMarkdown(
   const pdf = await getDocument({ data: pdfData }).promise;
   const children: Content[] = [];
 
+  // Build a set of page numbers to process (default: all pages)
+  const pageSet = options?.pages
+    ? new Set(options.pages.filter(p => p >= 1 && p <= pdf.numPages))
+    : null;
+
   for (let p = 1; p <= pdf.numPages; p++) {
     if (options?.signal?.aborted) throw new DOMException('Conversion cancelled', 'AbortError');
+
+    // Skip pages not in the requested set
+    if (pageSet && !pageSet.has(p)) continue;
 
     const page = await pdf.getPage(p);
     const tc = await page.getTextContent({ includeMarkedContent: false });
@@ -598,6 +623,7 @@ export async function pdfToMarkdown(
 
     const rows = groupRows(items);
     const fontStyleMap = buildFontStyleMap(items);
+    const headingSizes = options?.headingSizes;
     const bm = bodyMargin(rows);
     let i = 0;
 
@@ -607,7 +633,7 @@ export async function pdfToMarkdown(
       const row = rows[i];
       const text = rowText(row);
       if (!text) { i++; continue; }
-      const hd = headingDepth(row, fontStyleMap);
+      const hd = headingDepth(row, fontStyleMap, headingSizes);
 
       // 1. Code block
       if (row.every(t => t.isMono) && i + 1 < rows.length) {
@@ -717,7 +743,7 @@ export async function pdfToMarkdown(
             const br = rows[k];
             const bt = rowText(br);
             if (!bt.trim()) continue;
-            const bqHd = headingDepth(br, fontStyleMap);
+            const bqHd = headingDepth(br, fontStyleMap, headingSizes);
             if (bqHd !== null) {
               bqChildren.push({ type: 'heading', depth: Math.min(bqHd + 1, 6) as any, children: buildPhrasing(br, fontStyleMap) } as Heading);
             } else if (br.every(t => t.isMono)) {
@@ -740,7 +766,7 @@ export async function pdfToMarkdown(
         while (j < rows.length) {
           const nt = rowText(rows[j]);
           if (!nt.trim()) { j++; continue; }
-          if (headingDepth(rows[j], fontStyleMap) !== null) break;
+          if (headingDepth(rows[j], fontStyleMap, headingSizes) !== null) break;
           if (BULLET_RE.test(nt)) break;
           if (ORDERED_RE.test(nt)) break;
           if (rows[j].every(t => t.isMono)) break;
